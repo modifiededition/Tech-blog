@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import Post, Comment
-from .forms import PostForm, CommentForm
+from .form import PostForm, CommentForm
 
 from django.views.generic import (TemplateView,ListView,
                                   DetailView,CreateView,
@@ -12,11 +12,11 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 class AboutView(TemplateView):
-    template_name = 'about.html'
+    template_name = 'blog/about.html'
 
 class PostListView(ListView):
     model = Post
-
+ 
     def get_query(self):
         return Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
 
@@ -30,6 +30,16 @@ class PostUpdateView(LoginRequiredMixin,UpdateView):
     form_class = PostForm
 
     model = Post
+
+
+class CreatePostView(LoginRequiredMixin,CreateView):
+    login_url = '/login/'
+    redirect_field_name = 'blog/post_detail.html'
+
+    form_class = PostForm
+
+    model = Post
+
 
 class PostDeleteView(LoginRequiredMixin,DeleteView):
     model = Post
@@ -90,4 +100,3 @@ def comment_remove(request, pk):
     post_pk = comment.post.pk
     comment.delete()
     return redirect('post_detail', pk=post_pk)
-    
